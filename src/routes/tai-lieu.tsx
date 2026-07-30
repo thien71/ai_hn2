@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
-import { FileText, Loader2, Trash2, Upload } from "lucide-react";
+import { FileText, Loader2, Sparkles, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 import { AppHeader } from "@/components/AppHeader";
@@ -11,7 +11,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { extractTextFromFile } from "@/lib/extract-text";
-import { addDocument, deleteDocument, listDocuments } from "@/lib/rag.functions";
+import {
+  addDocument,
+  deleteDocument,
+  listDocuments,
+  seedSampleDocuments,
+} from "@/lib/rag.functions";
+
 
 export const Route = createFileRoute("/tai-lieu")({
   head: () => ({
@@ -46,6 +52,20 @@ function DocumentsPage() {
   const { data: docs = [], isLoading } = useQuery({
     queryKey: ["documents"],
     queryFn: () => fetchDocs(),
+  });
+  const seed = useServerFn(seedSampleDocuments);
+
+  const seedMutation = useMutation({
+    mutationFn: () => seed({ data: undefined }),
+    onSuccess: (result) => {
+      toast.success(
+        result.added > 0
+          ? `Đã nạp ${result.added} tài liệu mẫu.`
+          : "Bộ tài liệu mẫu đã có sẵn trong kho.",
+      );
+      queryClient.invalidateQueries({ queryKey: ["documents"] });
+    },
+    onError: (error: Error) => toast.error(error.message || "Không nạp được tài liệu mẫu."),
   });
 
   const addMutation = useMutation({
@@ -159,13 +179,33 @@ function DocumentsPage() {
         </section>
 
         <section className="rounded-2xl border bg-card p-5 shadow-panel">
-          <h2 className="text-lg font-bold">Tài liệu hiện có ({docs.length})</h2>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-lg font-bold">Tài liệu hiện có ({docs.length})</h2>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={seedMutation.isPending}
+              onClick={() => seedMutation.mutate()}
+            >
+              {seedMutation.isPending ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <Sparkles className="size-4" />
+              )}
+              Nạp bộ tài liệu mẫu
+            </Button>
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Chưa có văn bản riêng? Nạp bộ tài liệu nghiệp vụ mẫu (đảng phí, chuyển sinh hoạt Đảng,
+            nhận xét nơi cư trú, sinh hoạt chi bộ, chi bộ tiên phong chuyển đổi số) để dùng ngay.
+          </p>
           {isLoading ? (
             <p className="mt-3 text-sm text-muted-foreground">Đang tải…</p>
           ) : docs.length === 0 ? (
             <p className="mt-3 text-sm text-muted-foreground">
-              Chưa có tài liệu nào. Hãy thêm văn bản đầu tiên của chi bộ.
+              Chưa có tài liệu nào. Hãy thêm văn bản của chi bộ hoặc nạp bộ tài liệu mẫu.
             </p>
+
           ) : (
             <ul className="mt-4 space-y-3">
               {docs.map((doc) => (
