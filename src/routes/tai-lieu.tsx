@@ -159,13 +159,33 @@ function DocumentsPage() {
         </section>
 
         <section className="rounded-2xl border bg-card p-5 shadow-panel">
-          <h2 className="text-lg font-bold">Tài liệu hiện có ({docs.length})</h2>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-lg font-bold">Tài liệu hiện có ({docs.length})</h2>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={seedMutation.isPending}
+              onClick={() => seedMutation.mutate()}
+            >
+              {seedMutation.isPending ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <Sparkles className="size-4" />
+              )}
+              Nạp bộ tài liệu mẫu
+            </Button>
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Chưa có văn bản riêng? Nạp bộ tài liệu nghiệp vụ mẫu (đảng phí, chuyển sinh hoạt Đảng,
+            nhận xét nơi cư trú, sinh hoạt chi bộ, chi bộ tiên phong chuyển đổi số) để dùng ngay.
+          </p>
           {isLoading ? (
             <p className="mt-3 text-sm text-muted-foreground">Đang tải…</p>
           ) : docs.length === 0 ? (
             <p className="mt-3 text-sm text-muted-foreground">
-              Chưa có tài liệu nào. Hãy thêm văn bản đầu tiên của chi bộ.
+              Chưa có tài liệu nào. Hãy thêm văn bản của chi bộ hoặc nạp bộ tài liệu mẫu.
             </p>
+
           ) : (
             <ul className="mt-4 space-y-3">
               {docs.map((doc) => (
