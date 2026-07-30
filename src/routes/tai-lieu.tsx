@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
-import { FileText, Loader2, Trash2, Upload } from "lucide-react";
+import { FileText, Loader2, Sparkles, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 import { AppHeader } from "@/components/AppHeader";
@@ -11,7 +11,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { extractTextFromFile } from "@/lib/extract-text";
-import { addDocument, deleteDocument, listDocuments } from "@/lib/rag.functions";
+import {
+  addDocument,
+  deleteDocument,
+  listDocuments,
+  seedSampleDocuments,
+} from "@/lib/rag.functions";
+
 
 export const Route = createFileRoute("/tai-lieu")({
   head: () => ({
@@ -46,6 +52,20 @@ function DocumentsPage() {
   const { data: docs = [], isLoading } = useQuery({
     queryKey: ["documents"],
     queryFn: () => fetchDocs(),
+  });
+  const seed = useServerFn(seedSampleDocuments);
+
+  const seedMutation = useMutation({
+    mutationFn: () => seed({ data: undefined }),
+    onSuccess: (result) => {
+      toast.success(
+        result.added > 0
+          ? `Đã nạp ${result.added} tài liệu mẫu.`
+          : "Bộ tài liệu mẫu đã có sẵn trong kho.",
+      );
+      queryClient.invalidateQueries({ queryKey: ["documents"] });
+    },
+    onError: (error: Error) => toast.error(error.message || "Không nạp được tài liệu mẫu."),
   });
 
   const addMutation = useMutation({
