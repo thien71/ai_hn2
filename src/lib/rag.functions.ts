@@ -17,6 +17,11 @@ export const addDocument = createServerFn({ method: "POST" })
     return addDocumentImpl(data.title.trim(), data.content);
   });
 
+export const seedSampleDocuments = createServerFn({ method: "POST" }).handler(async () => {
+  const { seedSampleDocumentsImpl } = await import("./rag.server");
+  return seedSampleDocumentsImpl();
+});
+
 export const deleteDocument = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data }) => {
