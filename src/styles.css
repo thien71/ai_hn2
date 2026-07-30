@@ -101,5 +101,42 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family: var(--font-sans);
+    background-image: radial-gradient(oklch(0.47 0.19 27 / 0.045) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-serif);
   }
 }
+
+@utility banner-gradient {
+  background-image: var(--gradient-banner);
+}
+
+@utility prose-answer {
+  line-height: 1.7;
+
+  & p {
+    margin-block: 0.5rem;
+  }
+
+  & ul,
+  & ol {
+    margin-block: 0.5rem;
+    padding-inline-start: 1.25rem;
+    list-style: disc;
+  }
+
+  & ol {
+    list-style: decimal;
+  }
+
+  & strong {
+    font-weight: 600;
+  }
+}
+
