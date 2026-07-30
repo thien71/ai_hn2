@@ -66,7 +66,21 @@ export async function addDocumentImpl(title: string, content: string) {
   return { id: doc.id, chunks: chunks.length };
 }
 
+export async function seedSampleDocumentsImpl() {
+  const { SEED_DOCS } = await import("./seed-docs");
+  const { data: existing } = await supabaseAdmin.from("documents").select("title");
+  const titles = new Set((existing ?? []).map((d) => d.title as string));
+  let added = 0;
+  for (const doc of SEED_DOCS) {
+    if (titles.has(doc.title)) continue;
+    await addDocumentImpl(doc.title, doc.content);
+    added += 1;
+  }
+  return { added, skipped: SEED_DOCS.length - added };
+}
+
 export async function deleteDocumentImpl(id: string) {
+
   const { error } = await supabaseAdmin.from("documents").delete().eq("id", id);
   if (error) throw new Error(error.message);
   return { ok: true };
