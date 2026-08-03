@@ -6,15 +6,29 @@ export const listDocuments = createServerFn({ method: "GET" }).handler(async () 
   return listDocumentsImpl();
 });
 
+export const findDocumentByHash = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => z.object({ hash: z.string().min(8).max(128) }).parse(input))
+  .handler(async ({ data }) => {
+    const { findByHashImpl } = await import("./rag.server");
+    return findByHashImpl(data.hash);
+  });
+
 export const addDocument = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) =>
     z
-      .object({ title: z.string().min(1).max(300), content: z.string().min(20).max(400_000) })
+      .object({
+        title: z.string().min(1).max(300),
+        pages: z.array(z.string()).min(1).max(2000),
+        fileName: z.string().max(300).optional(),
+        fileType: z.string().max(20).optional(),
+        contentHash: z.string().min(8).max(128).optional(),
+        needsOcr: z.boolean().optional(),
+      })
       .parse(input),
   )
   .handler(async ({ data }) => {
     const { addDocumentImpl } = await import("./rag.server");
-    return addDocumentImpl(data.title.trim(), data.content);
+    return addDocumentImpl({ ...data, title: data.title.trim() });
   });
 
 export const seedSampleDocuments = createServerFn({ method: "POST" }).handler(async () => {

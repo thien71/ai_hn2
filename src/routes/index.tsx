@@ -198,13 +198,18 @@ function ChatPage() {
                       {message.sources.length > 0 && (
                         <div className="mt-3 border-t pt-2">
                           <p className="text-xs font-semibold text-muted-foreground">
-                            Nguồn tài liệu tham khảo
+                            File tham khảo & đoạn được trích
                           </p>
-                          <ul className="mt-1.5 space-y-1">
+                          <ul className="mt-1.5 space-y-2">
                             {message.sources.map((source, i) => (
                               <li key={i} className="text-xs text-muted-foreground">
-                                <span className="font-medium text-foreground">{source.title}</span> —{" "}
-                                {source.snippet}…
+                                <span className="font-medium text-foreground">
+                                  {source.file ?? source.title}
+                                </span>
+                                {source.page ? ` · trang ${source.page}` : ""}
+                                {source.heading ? ` · ${source.heading}` : ""}
+                                <br />
+                                <span className="italic">“{source.snippet}…”</span>
                               </li>
                             ))}
                           </ul>

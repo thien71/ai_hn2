@@ -40,62 +40,153 @@ export async function embedTexts(inputs: string[]): Promise<number[][]> {
   return out;
 }
 
-/** Cắt văn bản thành các đoạn ~1200 ký tự, ưu tiên ranh giới đoạn văn. */
-export function chunkText(text: string, size = 1200, overlap = 150): string[] {
-  const clean = text.replace(/\r\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
-  if (!clean) return [];
-  const paragraphs = clean.split(/\n\s*\n/);
-  const chunks: string[] = [];
-  let current = "";
+export type Chunk = {
+  content: string;
+  wordCount: number;
+  pageFrom: number | null;
+  pageTo: number | null;
+  heading: string | null;
+};
 
-  const push = () => {
-    const t = current.trim();
-    if (t) chunks.push(t);
-    current = "";
-  };
+const HEADING_RE =
+  /^\s*(?:(?:CHƯƠNG|PHẦN|MỤC|ĐIỀU|Chương|Phần|Mục|Điều)\s+[IVXLC\d]+|[IVXLC]+\.|\d+(?:\.\d+)*[.)]|[A-ZĐ][^a-z\n]{6,})/;
 
-  for (const p of paragraphs) {
-    if (p.length > size) {
-      push();
-      for (let i = 0; i < p.length; i += size - overlap) {
-        chunks.push(p.slice(i, i + size).trim());
-      }
-      continue;
-    }
-    if ((current + "\n\n" + p).length > size) push();
-    current = current ? `${current}\n\n${p}` : p;
+function detectHeading(text: string): string | null {
+  for (const line of text.split("\n").slice(0, 6)) {
+    const t = line.trim();
+    if (t.length >= 4 && t.length <= 160 && HEADING_RE.test(t)) return t;
   }
-  push();
-  return chunks.filter(Boolean);
+  return null;
 }
 
-export type Source = { title: string; snippet: string };
+/**
+ * Cắt tài liệu thành các đoạn 500–800 từ, chồng lấp ~100 từ,
+ * giữ nguyên số trang (nếu nguồn là PDF nhiều trang).
+ */
+export function chunkPages(
+  pages: string[],
+  { target = 700, max = 800, overlap = 100 } = {},
+): Chunk[] {
+  type Word = { w: string; page: number };
+  const words: Word[] = [];
+  pages.forEach((raw, idx) => {
+    const clean = (raw ?? "").replace(/\r\n/g, "\n").replace(/[ \t]+/g, " ").trim();
+    if (!clean) return;
+    for (const w of clean.split(/(\s+)/)) {
+      if (w.trim() === "" && !w.includes("\n")) continue;
+      words.push({ w: w.includes("\n") ? "\n" : w, page: idx + 1 });
+    }
+  });
+
+  const real = words.filter((x) => x.w !== "\n");
+  if (real.length === 0) return [];
+
+  const chunks: Chunk[] = [];
+  let i = 0;
+  const step = Math.max(1, target - overlap);
+
+  while (i < words.length) {
+    let end = i;
+    let count = 0;
+    while (end < words.length && count < max) {
+      if (words[end].w !== "\n") count += 1;
+      end += 1;
+      if (count >= target) break;
+    }
+    const slice = words.slice(i, end);
+    const content = slice
+      .map((x) => x.w)
+      .join(" ")
+      .replace(/\s*\n\s*/g, "\n")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim();
+    const wordCount = slice.filter((x) => x.w !== "\n").length;
+    if (wordCount >= 20) {
+      const pageNums = slice.map((x) => x.page);
+      chunks.push({
+        content,
+        wordCount,
+        pageFrom: pages.length > 1 ? Math.min(...pageNums) : null,
+        pageTo: pages.length > 1 ? Math.max(...pageNums) : null,
+        heading: detectHeading(content),
+      });
+    } else if (chunks.length === 0 && content) {
+      chunks.push({
+        content,
+        wordCount,
+        pageFrom: pages.length > 1 ? slice[0]?.page ?? null : null,
+        pageTo: pages.length > 1 ? slice[slice.length - 1]?.page ?? null : null,
+        heading: detectHeading(content),
+      });
+    }
+
+    if (end >= words.length) break;
+    // lùi lại ~overlap từ thật để tạo phần chồng lấp
+    let back = 0;
+    let j = end;
+    while (j > i && back < overlap) {
+      j -= 1;
+      if (words[j].w !== "\n") back += 1;
+    }
+    i = Math.max(i + step, j) === i ? i + step : Math.max(j, i + 1);
+  }
+
+  return chunks;
+}
+
+export type Source = {
+  title: string;
+  file: string;
+  page: string | null;
+  heading: string | null;
+  snippet: string;
+};
+
+export type Passage = {
+  title: string;
+  file_name: string;
+  heading: string | null;
+  page_from: number | null;
+  page_to: number | null;
+  content: string;
+};
 
 export async function answerQuestion(
   question: string,
   history: { role: "user" | "assistant"; content: string }[],
-  passages: { title: string; content: string }[],
+  passages: Passage[],
 ): Promise<string> {
   const context = passages
-    .map((p, i) => `[Nguồn ${i + 1} — ${p.title}]\n${p.content}`)
+    .map((p, i) => {
+      const page =
+        p.page_from == null
+          ? ""
+          : p.page_from === p.page_to
+            ? `, trang ${p.page_from}`
+            : `, trang ${p.page_from}–${p.page_to}`;
+      const heading = p.heading ? `, mục: ${p.heading}` : "";
+      return `[Đoạn ${i + 1} | file: ${p.file_name}${page}${heading}]\n${p.content}`;
+    })
     .join("\n\n---\n\n");
 
-  const system = `Bạn là trợ lý AI của chi bộ trường tiểu học, hỗ trợ tra cứu văn bản, nghị quyết, kế hoạch và báo cáo của chi bộ.
+  const system = `Bạn là trợ lý AI của Chi bộ trường học.
 
-QUY TẮC:
-- Chỉ trả lời dựa trên phần "TÀI LIỆU THAM KHẢO" bên dưới. Tuyệt đối không suy đoán hay bịa đặt.
-- Nếu tài liệu không có thông tin, hãy nói rõ: "Tôi không tìm thấy nội dung này trong kho tài liệu của chi bộ."
-- Trích dẫn tên tài liệu khi trả lời, ví dụ: (theo Nghị quyết tháng 9).
-- Trả lời bằng tiếng Việt, văn phong hành chính, ngắn gọn, rõ ý, dùng gạch đầu dòng khi liệt kê.
+QUY TẮC BẮT BUỘC:
+- Chỉ được trả lời dựa trên CONTEXT bên dưới.
+- Nếu CONTEXT không có câu trả lời, chỉ trả lời đúng câu: "Tôi không tìm thấy thông tin trong các tài liệu đã tải lên."
+- Không được tự suy đoán. Không được bịa.
+- Nếu thông tin nằm ở nhiều tài liệu thì tổng hợp lại.
+- Khi trích dẫn phải ghi rõ tên file (và số trang nếu có), ví dụ: (nguồn: nghi-quyet-thang-9.pdf, trang 2).
+- Trả lời bằng tiếng Việt, văn phong hành chính, ngắn gọn, dùng gạch đầu dòng khi liệt kê.
 
-TÀI LIỆU THAM KHẢO:
-${context || "(Kho tài liệu đang trống)"}`;
+CONTEXT:
+${context || "(không có đoạn tài liệu nào liên quan)"}`;
 
   const json = (await gateway("/chat/completions", {
     model: CHAT_MODEL,
     messages: [
       { role: "system", content: system },
-      ...history.slice(-10),
+      ...history.slice(-8),
       { role: "user", content: question },
     ],
   })) as { choices: { message: { content: string } }[] };

@@ -21,7 +21,11 @@ export type Database = {
           created_at: string
           document_id: string
           embedding: string
+          heading: string | null
           id: string
+          page_from: number | null
+          page_to: number | null
+          word_count: number | null
         }
         Insert: {
           chunk_index: number
@@ -29,7 +33,11 @@ export type Database = {
           created_at?: string
           document_id: string
           embedding: string
+          heading?: string | null
           id?: string
+          page_from?: number | null
+          page_to?: number | null
+          word_count?: number | null
         }
         Update: {
           chunk_index?: number
@@ -37,7 +45,11 @@ export type Database = {
           created_at?: string
           document_id?: string
           embedding?: string
+          heading?: string | null
           id?: string
+          page_from?: number | null
+          page_to?: number | null
+          word_count?: number | null
         }
         Relationships: [
           {
@@ -52,20 +64,35 @@ export type Database = {
       documents: {
         Row: {
           content: string
+          content_hash: string | null
           created_at: string
+          file_name: string | null
+          file_type: string | null
           id: string
+          needs_ocr: boolean
+          page_count: number | null
           title: string
         }
         Insert: {
           content: string
+          content_hash?: string | null
           created_at?: string
+          file_name?: string | null
+          file_type?: string | null
           id?: string
+          needs_ocr?: boolean
+          page_count?: number | null
           title: string
         }
         Update: {
           content?: string
+          content_hash?: string | null
           created_at?: string
+          file_name?: string | null
+          file_type?: string | null
           id?: string
+          needs_ocr?: boolean
+          page_count?: number | null
           title?: string
         }
         Relationships: []
@@ -104,7 +131,11 @@ export type Database = {
         Returns: {
           content: string
           document_id: string
+          file_name: string
+          heading: string
           id: string
+          page_from: number
+          page_to: number
           similarity: number
           title: string
         }[]
