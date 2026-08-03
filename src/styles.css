@@ -102,7 +102,7 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
-    background-image: radial-gradient(oklch(0.47 0.19 27 / 0.045) 1px, transparent 1px);
+    background-image: radial-gradient(oklch(0.46 0.115 152 / 0.05) 1px, transparent 1px);
     background-size: 22px 22px;
   }
 
