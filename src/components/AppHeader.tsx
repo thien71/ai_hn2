@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { BookOpenText, MessagesSquare } from "lucide-react";
-import logo from "@/assets/logo-chibo.png";
+import logoAsset from "@/assets/logo-truong.png.asset.json";
 
 export function AppHeader() {
   return (
