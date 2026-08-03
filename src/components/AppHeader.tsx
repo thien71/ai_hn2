@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { BookOpenText, MessagesSquare } from "lucide-react";
-import logo from "@/assets/logo-chibo.png";
+import logoAsset from "@/assets/logo-truong.png.asset.json";
 
 export function AppHeader() {
   return (
@@ -8,15 +8,15 @@ export function AppHeader() {
       <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <img
-            src={logo}
-            alt="Biểu trưng Chi bộ Hòa Nhơn 2"
+            src={logoAsset.url}
+            alt="Biểu trưng Trường Tiểu học số 2 Hòa Nhơn"
             width={512}
             height={512}
             className="size-14 shrink-0 object-contain sm:size-16"
           />
           <div>
             <p className="text-[11px] font-semibold tracking-[0.18em] text-primary uppercase">
-              Chi bộ Hòa Nhơn 2
+              Chi bộ Trường Tiểu học số 2 Hòa Nhơn
             </p>
             <h1 className="font-serif text-xl leading-tight font-extrabold text-primary sm:text-2xl">
               TRỢ LÝ AI CHUYỂN ĐỔI SỐ

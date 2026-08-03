@@ -78,6 +78,13 @@ function ChatPage() {
   const groups = SUGGESTION_GROUPS[topic];
   const topicMeta = TOPICS.find((t) => t.key === topic)!;
   const userQuestions = messages.filter((m) => m.role === "user");
+  const lastIndex = messages.length - 1;
+  const visibleMessages =
+    messages.length === 0
+      ? []
+      : messages[lastIndex].role === "assistant"
+        ? messages.slice(-2)
+        : messages.slice(-1);
 
   useEffect(() => {
     textareaRef.current?.focus();
@@ -178,7 +185,7 @@ function ChatPage() {
               </p>
             ) : (
               <div className="space-y-4">
-                {messages.map((message) =>
+                {(pending ? [] : visibleMessages).map((message) =>
                   message.role === "user" ? (
                     <div key={message.id} className="flex justify-end">
                       <div className="max-w-[85%] rounded-2xl rounded-br-sm bg-primary px-4 py-2.5 text-primary-foreground shadow-soft">
