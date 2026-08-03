@@ -79,13 +79,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Trợ lý AI văn bản chi bộ" },
+      { title: "Trợ lý AI chuyển đổi số | Chi bộ Hòa Nhơn 2" },
       {
         name: "description",
-        content: "Tra cứu nhanh nghị quyết, kế hoạch và báo cáo của chi bộ trường tiểu học bằng AI.",
+        content: "Trợ lý AI của Chi bộ Hòa Nhơn 2: hỏi đáp thủ tục hành chính Đảng, đảng phí, chuyển sinh hoạt Đảng và mô hình chi bộ tiên phong chuyển đổi số.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:title", content: "Trợ lý AI chuyển đổi số | Chi bộ Hòa Nhơn 2" },
+      { name: "twitter:title", content: "Trợ lý AI chuyển đổi số | Chi bộ Hòa Nhơn 2" },
+      { property: "og:description", content: "Trợ lý AI của Chi bộ Hòa Nhơn 2: hỏi đáp thủ tục hành chính Đảng, đảng phí, chuyển sinh hoạt Đảng và mô hình chi bộ tiên phong chuyển đổi số." },
+      { name: "twitter:description", content: "Trợ lý AI của Chi bộ Hòa Nhơn 2: hỏi đáp thủ tục hành chính Đảng, đảng phí, chuyển sinh hoạt Đảng và mô hình chi bộ tiên phong chuyển đổi số." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/7bf393c0-2c03-4972-a4d6-7760dc8e3994/id-preview-c5dd9bd1--aa3e54c0-ba01-403e-8c0d-08da7629bdaa.lovable.app-1785734589692.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/7bf393c0-2c03-4972-a4d6-7760dc8e3994/id-preview-c5dd9bd1--aa3e54c0-ba01-403e-8c0d-08da7629bdaa.lovable.app-1785734589692.png" },
     ],
     links: [
       {

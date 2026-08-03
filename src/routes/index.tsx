@@ -33,7 +33,7 @@ export const Route = createFileRoute("/")({
       {
         property: "og:description",
         content:
-          "Tra cứu nội bộ có kiểm soát nguồn — trợ lý chỉ trả lời theo tài liệu đã được duyệt.",
+          "Trợ lý AI của Chi bộ Hòa Nhơn 2: hỏi đáp thủ tục hành chính Đảng, đảng phí, chuyển sinh hoạt Đảng và mô hình chi bộ tiên phong chuyển đổi số.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
