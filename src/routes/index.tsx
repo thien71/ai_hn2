@@ -98,7 +98,7 @@ function ChatPage() {
     <div className="flex min-h-screen flex-col bg-background">
       <AppHeader />
 
-      <main className="mx-auto grid w-full max-w-6xl flex-1 gap-6 px-4 py-6 lg:grid-cols-[1.5fr_1fr]">
+      <main className="mx-auto grid w-full max-w-6xl flex-1 gap-6 px-4 py-6 lg:grid-cols-[1.75fr_1fr]">
         <div className="space-y-5">
           <section className="rounded-2xl border bg-card p-5 shadow-panel">
             <div className="flex gap-3">
