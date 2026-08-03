@@ -78,6 +78,13 @@ function ChatPage() {
   const groups = SUGGESTION_GROUPS[topic];
   const topicMeta = TOPICS.find((t) => t.key === topic)!;
   const userQuestions = messages.filter((m) => m.role === "user");
+  const lastIndex = messages.length - 1;
+  const visibleMessages =
+    messages.length === 0
+      ? []
+      : messages[lastIndex].role === "assistant"
+        ? messages.slice(-2)
+        : messages.slice(-1);
 
   useEffect(() => {
     textareaRef.current?.focus();
