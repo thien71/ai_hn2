@@ -63,36 +63,60 @@ export type Database = {
       }
       documents: {
         Row: {
+          category: string | null
           content: string
           content_hash: string | null
           created_at: string
+          drive_file_id: string | null
+          drive_url: string | null
+          error_message: string | null
           file_name: string | null
           file_type: string | null
+          folder_path: string | null
           id: string
+          modified_time: string | null
           needs_ocr: boolean
           page_count: number | null
+          source: string
+          sync_status: string
           title: string
         }
         Insert: {
+          category?: string | null
           content: string
           content_hash?: string | null
           created_at?: string
+          drive_file_id?: string | null
+          drive_url?: string | null
+          error_message?: string | null
           file_name?: string | null
           file_type?: string | null
+          folder_path?: string | null
           id?: string
+          modified_time?: string | null
           needs_ocr?: boolean
           page_count?: number | null
+          source?: string
+          sync_status?: string
           title: string
         }
         Update: {
+          category?: string | null
           content?: string
           content_hash?: string | null
           created_at?: string
+          drive_file_id?: string | null
+          drive_url?: string | null
+          error_message?: string | null
           file_name?: string | null
           file_type?: string | null
+          folder_path?: string | null
           id?: string
+          modified_time?: string | null
           needs_ocr?: boolean
           page_count?: number | null
+          source?: string
+          sync_status?: string
           title?: string
         }
         Relationships: []
@@ -121,6 +145,84 @@ export type Database = {
         }
         Relationships: []
       }
+      site_links: {
+        Row: {
+          discovered_at: string
+          drive_id: string | null
+          id: string
+          link_type: string
+          page_path: string
+          page_title: string
+          url: string
+        }
+        Insert: {
+          discovered_at?: string
+          drive_id?: string | null
+          id?: string
+          link_type: string
+          page_path: string
+          page_title: string
+          url: string
+        }
+        Update: {
+          discovered_at?: string
+          drive_id?: string | null
+          id?: string
+          link_type?: string
+          page_path?: string
+          page_title?: string
+          url?: string
+        }
+        Relationships: []
+      }
+      sync_runs: {
+        Row: {
+          files_error: number
+          files_found: number
+          files_new: number
+          files_removed: number
+          files_updated: number
+          finished_at: string | null
+          folders_scanned: number
+          id: string
+          message: string | null
+          pages_scanned: number
+          started_at: string
+          status: string
+          trigger_type: string
+        }
+        Insert: {
+          files_error?: number
+          files_found?: number
+          files_new?: number
+          files_removed?: number
+          files_updated?: number
+          finished_at?: string | null
+          folders_scanned?: number
+          id?: string
+          message?: string | null
+          pages_scanned?: number
+          started_at?: string
+          status?: string
+          trigger_type?: string
+        }
+        Update: {
+          files_error?: number
+          files_found?: number
+          files_new?: number
+          files_removed?: number
+          files_updated?: number
+          finished_at?: string | null
+          folders_scanned?: number
+          id?: string
+          message?: string | null
+          pages_scanned?: number
+          started_at?: string
+          status?: string
+          trigger_type?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -140,6 +242,8 @@ export type Database = {
           title: string
         }[]
       }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
     }
     Enums: {
       [_ in never]: never
